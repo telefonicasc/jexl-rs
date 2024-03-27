@@ -10,11 +10,41 @@ pub use lalrpop_util::ParseError;
 
 pub use crate::parser::Token;
 
-pub struct Parser {}
+
+
+
+pub struct SingletonParser {
+    parser: Option<parser::ExpressionParser>,
+}
+
+impl SingletonParser {
+    pub fn new() -> Self {
+        Self {
+            parser: None,
+        }
+    }
+
+    pub fn parse<'a>(&'a mut self, input: &'a str) -> Result<ast::Expression, ParseError<usize, Token, &str>> {
+        if self.parser.is_none() {
+            self.parser = Some(parser::ExpressionParser::new());
+        }
+        if let Some(parser) = &mut self.parser{
+            Ok(*parser.parse(input)?)
+        }
+        else{
+            unreachable!()
+        }
+    }
+ }
+
+ pub struct Parser {
+    sparser: SingletonParser
+}
 
 impl Parser {
     pub fn parse(input: &str) -> Result<ast::Expression, ParseError<usize, Token, &str>> {
-        Ok(*parser::ExpressionParser::new().parse(input)?)
+        let mut parser = Parser { sparser: SingletonParser::new() }; // Create an instance of Parser
+        Ok(parser.sparser.parse(input).unwrap()) 
     }
 }
 
