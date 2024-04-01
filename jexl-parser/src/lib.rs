@@ -16,7 +16,23 @@ pub use crate::parser::Token;
 pub struct SingletonParser {
     parser: Option<parser::ExpressionParser>,
 }
-
+/*impl<'a> Default for &'a TestStructA {
+    fn default() -> &'a TestStructA {
+        static VALUE: TestStructA = TestStructA {
+            byte_1: 10,
+            byte_2: 20,
+            vector: Vec::new()
+        };
+        &VALUE
+    }
+} */
+impl Default for SingletonParser {
+    fn default() -> SingletonParser {
+        SingletonParser {
+            parser: Some(parser::ExpressionParser::new())
+        }
+    }
+}
 impl SingletonParser {
     pub fn new() -> Self {
         Self {
@@ -25,9 +41,7 @@ impl SingletonParser {
     }
 
     pub fn parse<'a>(&'a mut self, input: &'a str) -> Result<ast::Expression, ParseError<usize, Token, &str>> {
-        if self.parser.is_none() {
-            self.parser = Some(parser::ExpressionParser::new());
-        }
+      
         if let Some(parser) = &mut self.parser{
             Ok(*parser.parse(input)?)
         }
