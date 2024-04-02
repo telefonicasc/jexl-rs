@@ -35,7 +35,7 @@
 
 use jexl_parser::{
     ast::{Expression, OpCode},
-    Parser,
+    SingletonParser,
 };
 use serde_json::{json as value, Value};
 
@@ -93,11 +93,13 @@ pub type TransformFn<'a> = Box<dyn Fn(&[Value]) -> Result<Value, anyhow::Error> 
 #[derive(Default)]
 pub struct Evaluator<'a> {
     transforms: HashMap<String, TransformFn<'a>>,
+    sparser: SingletonParser
 }
 
 impl<'a> Evaluator<'a> {
     pub fn new() -> Self {
         Self::default()
+
     }
 
     /// Adds a custom transform function
@@ -146,7 +148,7 @@ impl<'a> Evaluator<'a> {
         input: &'b str,
         context: T,
     ) -> Result<'b, Value> {
-        let tree = Parser::parse(input)?;
+        let tree = &mut self.sparser.parse(input)?;//Parser::parse(input)?;
         let context = serde_json::to_value(context)?;
         if !context.is_object() {
             return Err(EvaluationError::InvalidContext);
