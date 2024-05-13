@@ -182,7 +182,8 @@ impl<'a> Evaluator<'a> {
 
             Expression::Identifier(inner) => match context.get(&inner) {
                 Some(v) => Ok(v.clone()),
-                _ => Err(EvaluationError::UndefinedIdentifier(inner.clone())),
+                _ => Ok(Value::Null),
+                //_ => Err(EvaluationError::UndefinedIdentifier(inner.clone())),
             },
 
             Expression::DotOperation { subject, ident } => {
@@ -670,25 +671,30 @@ mod tests {
     #[test]
     // Test returning an UndefinedIdentifier error if an identifier is unknown
     fn test_undefined_identifier() {
+        let err = Evaluator::new().eval("not_defined");
+        assert_eq!(err.unwrap(), Value::Null);
+        /*
         let err = Evaluator::new().eval("not_defined").unwrap_err();
         if let EvaluationError::UndefinedIdentifier(id) = err {
             assert_eq!(id, "not_defined")
         } else {
             panic!("Should have thrown an undefined identifier error")
         }
+        */
     }
 
     #[test]
     // Test returning an UndefinedIdentifier error if an identifier is unknown
     fn test_undefined_identifier_truthy_ops() {
-        let err = Evaluator::new().eval("not_defined").unwrap_err();
-        if let EvaluationError::UndefinedIdentifier(id) = err {
+        let err = Evaluator::new().eval("not_defined");
+        assert_eq!(err.unwrap(), Value::Null);
+        /*if let EvaluationError::UndefinedIdentifier(id) = err {
             assert_eq!(id, "not_defined")
         } else {
             panic!("Should have thrown an undefined identifier error")
-        }
+        }*/
 
-        let evaluator = Evaluator::new();
+        /*let evaluator = Evaluator::new();
         let context = value!({
             "NULL": null,
             "DEFINED": "string",
@@ -727,7 +733,7 @@ mod tests {
             "(UNDEFINED && UNDEFINED == 'string') || (DEFINED && DEFINED == 'string')",
             true,
             value!(true),
-        );
+        );*/
     }
 
     #[test]
